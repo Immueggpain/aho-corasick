@@ -98,6 +98,26 @@ public class Trie {
         return tokens;
     }
 
+    public Collection<Token> tokenize(final String text, final Collection<Emit> collectedEmits) {
+        final Collection<Token> tokens = new ArrayList<>();
+        int lastCollectedPosition = -1;
+
+        for (final Emit emit : collectedEmits) {
+            if (emit.getStart() - lastCollectedPosition > 1) {
+                tokens.add(createFragment(emit, text, lastCollectedPosition));
+            }
+
+            tokens.add(createMatch(emit, text));
+            lastCollectedPosition = emit.getEnd();
+        }
+
+        if (text.length() - lastCollectedPosition > 1) {
+            tokens.add(createFragment(null, text, lastCollectedPosition));
+        }
+
+        return tokens;
+    }
+
     private Token createFragment(final Emit emit, final String text, final int lastCollectedPosition) {
         return new FragmentToken(text.substring(lastCollectedPosition + 1, emit == null ? text.length() : emit.getStart()));
     }
